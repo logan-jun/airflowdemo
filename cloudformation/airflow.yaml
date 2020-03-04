@@ -113,9 +113,9 @@ Resources:
          sed -i '/executor = SequentialExecutor/ a executor = LocalExecutor' ~/airflow/airflow.cfg
          airflow initdb
          # Move all the files to the ~/airflow directory. The Airflow config file is setup to hold all the DAG related files in the ~/airflow/ folder.
-         mv aws-concurrent-data-orchestration-pipeline-emr-livy/* ~/airflow/
+         mv airflowdemo/* ~/airflow/
          # Delete the higher-level git repository directory
-         rm -rf aws-concurrent-data-orchestration-pipeline-emr-livy
+         rm -rf airflowdemo
          # Replace the name of the S3 bucket in each of the .scala files. CHANGE THE HIGHLIGHTED PORTION BELOW TO THE NAME OF THE S3 BUCKET YOU CREATED IN STEP 1. The below command replaces the instance of the string ‘<s3-bucket>’ in each of the scripts to the name of the actual bucket.
          sed -i 's/<s3-bucket>/${S3BucketName}/g' /root/airflow/dags/transform/*
          # Run Airflow webserver
@@ -147,7 +147,7 @@ Resources:
   AirflowEC2SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupName: AirflowEC2SG2
+      GroupName: AirflowEC2SG3
       GroupDescription: Enable HTTP access via port 80 + SSH access
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -165,7 +165,7 @@ Resources:
   AirflowEMRMasterEC2SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupName: AirflowEMRMasterSG2
+      GroupName: AirflowEMRMasterSG3
       GroupDescription: Airflow EMR Master SG
     DependsOn:
       - AirflowEC2SecurityGroup
@@ -180,7 +180,7 @@ Resources:
   AirflowEMRSlaveEC2SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupName: AirflowEMRSlaveSG2
+      GroupName: AirflowEMRSlaveSG3
       GroupDescription: Airflow EMR Slave SG
   DBSecurityGroup:
     Type: AWS::RDS::DBSecurityGroup
@@ -192,7 +192,7 @@ Resources:
   EC2Role:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: AirflowInstanceRole2
+      RoleName: AirflowInstanceRole3
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -209,14 +209,14 @@ Resources:
   EC2InstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
-      InstanceProfileName: AirflowInstanceProfile2
+      InstanceProfileName: AirflowInstanceProfile3
       Roles:
         -
           Ref: EC2Role
   EmrRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: EmrRole2
+      RoleName: EmrRole3
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -234,7 +234,7 @@ Resources:
   EmrEc2Role:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: EmrEc2Role2
+      RoleName: EmrEc2Role3
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -251,7 +251,7 @@ Resources:
   EmrEc2InstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
-      InstanceProfileName: EmrEc2InstanceProfile2
+      InstanceProfileName: EmrEc2InstanceProfile3
       Roles:
         -
           Ref: EmrEc2Role
