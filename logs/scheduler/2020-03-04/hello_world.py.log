@@ -1,0 +1,6 @@
+[2020-03-04 10:56:59,259] {scheduler_job.py:153} INFO - Started process (PID=12504) to work on /Users/bsjun/Documents/airflowtest/dags/hello_world.py
+[2020-03-04 10:57:04,265] {scheduler_job.py:1560} INFO - Processing file /Users/bsjun/Documents/airflowtest/dags/hello_world.py for tasks to queue
+[2020-03-04 10:57:04,266] {logging_mixin.py:112} INFO - [2020-03-04 10:57:04,265] {dagbag.py:403} INFO - Filling up the DagBag from /Users/bsjun/Documents/airflowtest/dags/hello_world.py
+[2020-03-04 10:57:04,273] {scheduler_job.py:1572} INFO - DAG(s) dict_keys(['hello_world']) retrieved from /Users/bsjun/Documents/airflowtest/dags/hello_world.py
+[2020-03-04 10:57:04,280] {logging_mixin.py:112} INFO - [2020-03-04 10:57:04,280] {dag.py:1485} INFO - Creating ORM DAG for hello_world
+[2020-03-04 10:57:04,288] {scheduler_job.py:161} INFO - Processing /Users/bsjun/Documents/airflowtest/dags/hello_world.py took 5.029 seconds
