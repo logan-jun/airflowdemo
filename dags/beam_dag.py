@@ -41,7 +41,8 @@ def wait_for_completion(**kwargs):
 def wait_for_step(**kwargs):
     ti = kwargs['ti']
     cluster_id = ti.xcom_pull(task_ids='create_cluster')
-    emr.wait_for_step_completion(cluster_id)
+    step_ids = ti.xcom_pull(task_ids='create_step')
+    emr.wait_for_step_completion(cluster_id, step_ids[0])
 
 # Terminates the EMR cluster
 def terminate_emr(**kwargs):
