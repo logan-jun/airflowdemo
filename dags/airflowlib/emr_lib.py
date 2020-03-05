@@ -84,7 +84,7 @@ def wait_for_cluster_creation(cluster_id):
     emr.get_waiter('cluster_running').wait(ClusterId=cluster_id)
 
 def wait_for_step_completion(cluster_id):
-    emr.get_waiter('step_compelete').wait(ClusterId=cluster_id)
+    emr.get_waiter('step_complete').wait(ClusterId=cluster_id)
 
 def terminate_cluster(cluster_id):
     emr.terminate_job_flows(JobFlowIds=[cluster_id])
