@@ -27,8 +27,9 @@ def create_emr(**kwargs):
 
 # Creates a step in EMR cluster
 def create_step(**kwargs):
+    ti = kwargs['ti']
     cluster_id = ti.xcom_pull(task_ids='create_cluster')
-    step_id = emr.add_job_flow_steps(jobflowId=cluster_id)
+    step_ids = emr.add_job_flow_steps(jobflowId=cluster_id)
     return step_ids
 
 # Waits for the EMR cluster to be ready to accept jobs
@@ -36,6 +37,11 @@ def wait_for_completion(**kwargs):
     ti = kwargs['ti']
     cluster_id = ti.xcom_pull(task_ids='create_cluster')
     emr.wait_for_cluster_creation(cluster_id)
+
+def wait_for_step(**kwargs):
+    ti = kwargs['ti']
+    cluster_id = ti.xcom_pull(task_ids='create_cluster')
+    emr.wait_for_step_completion(cluster_id)
 
 # Terminates the EMR cluster
 def terminate_emr(**kwargs):
@@ -59,6 +65,11 @@ wait_for_cluster_completion = PythonOperator(
     python_callable=wait_for_completion,
     dag=dag)
 
+wait_for_step_completion = PythonOperator(
+    task_id='wait_for_step_completion',
+    python_callable=wait_for_step,
+    dag=dag)
+
 terminate_cluster = PythonOperator(
     task_id='terminate_cluster',
     python_callable=terminate_emr,
@@ -67,4 +78,4 @@ terminate_cluster = PythonOperator(
 
 # construct the DAG by setting the dependencies
 create_cluster >> wait_for_cluster_completion
-wait_for_cluster_completion >> add_emr_step >> terminate_cluster
+wait_for_cluster_completion >> add_emr_step >> wait_for_step_completion >> terminate_cluster

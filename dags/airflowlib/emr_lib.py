@@ -16,7 +16,7 @@ def get_security_group_id(group_name, region_name):
     return response['SecurityGroups'][0]['GroupId']
 
 def add_job_flow_steps(jobflowId):
-    client_response = client.add_job_flow_steps(
+    client_response = emr.add_job_flow_steps(
         JobFlowId=jobflowId,
         Steps=[
             {
@@ -25,7 +25,7 @@ def add_job_flow_steps(jobflowId):
                 'HadoopJarStep': {
                     'Jar': 'command-runner.jar',
                     'Args': [
-                        'spark-submit --deploy-mode client --class com.example.beam.App s3://bsjun-airflow-temp/beam/wordcount/wordcount-app-1.0.0-shaded.jar --runner=SparkRunner --inputPath=s3://bsjun-airflow-temp/beam/kinglear.txt --outputPath=s3://bsjun-airflow-temp/beam/wordcount'
+                        'spark-submit', '--deploy-mode', 'client', '--class', 'com.example.beam.App', 's3://bsjun-airflow-temp/beam/wordcount/wordcount-app-1.0.0-shaded.jar', '--runner=SparkRunner', '--inputPath=s3://bsjun-airflow-temp/beam/kinglear.txt', '--outputPath=s3://bsjun-airflow-temp/beam/wordcount'
                     ]
                 }
             },
@@ -83,6 +83,8 @@ def get_cluster_dns(cluster_id):
 def wait_for_cluster_creation(cluster_id):
     emr.get_waiter('cluster_running').wait(ClusterId=cluster_id)
 
+def wait_for_step_completion(cluster_id):
+    emr.get_waiter('step_compelete').wait(ClusterId=cluster_id)
 
 def terminate_cluster(cluster_id):
     emr.terminate_job_flows(JobFlowIds=[cluster_id])
