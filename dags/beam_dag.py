@@ -29,8 +29,8 @@ def create_emr(**kwargs):
 def create_step(**kwargs):
     ti = kwargs['ti']
     cluster_id = ti.xcom_pull(task_ids='create_cluster')
-    step_ids = emr.add_job_flow_steps(jobflowId=cluster_id)
-    return step_ids
+    step_id = emr.add_job_flow_steps(jobflowId=cluster_id)
+    return step_id
 
 # Waits for the EMR cluster to be ready to accept jobs
 def wait_for_completion(**kwargs):
@@ -41,8 +41,8 @@ def wait_for_completion(**kwargs):
 def wait_for_step(**kwargs):
     ti = kwargs['ti']
     cluster_id = ti.xcom_pull(task_ids='create_cluster')
-    step_ids = ti.xcom_pull(task_ids='create_step')
-    emr.wait_for_step_completion(cluster_id, step_ids[0])
+    step_id = ti.xcom_pull(task_ids='create_step')
+    emr.wait_for_step_completion(cluster_id, step_id)
 
 # Terminates the EMR cluster
 def terminate_emr(**kwargs):
