@@ -1,20 +1,24 @@
 import boto3, json, pprint, requests, textwrap, time, logging, requests
 from datetime import datetime
 
+# 리전 정보 받기
 def get_region():
     r = requests.get("http://169.254.169.254/latest/dynamic/instance-identity/document")
     response_json = r.json()
     return response_json.get('region')
 
+# 리전에 따른 aws sdk 세팅
 def client(region_name):
     global emr
     emr = boto3.client('emr', region_name=region_name)
 
+# 해당 리전의 그룹 id 받기
 def get_security_group_id(group_name, region_name):
     ec2 = boto3.client('ec2', region_name=region_name)
     response = ec2.describe_security_groups(GroupNames=[group_name])
     return response['SecurityGroups'][0]['GroupId']
 
+# spark-submit을 하는 스텝을 클러스터에 추가. 추가와 동시에 spark runner가 작동을 함.
 def add_job_flow_steps(jobflowId):
     client_response = emr.add_job_flow_steps(
         JobFlowId=jobflowId,
@@ -33,6 +37,7 @@ def add_job_flow_steps(jobflowId):
     )
     return client_response['StepIds'][0]
 
+# EMR에 spark cluster 생성
 def create_cluster(region_name, cluster_name='Airflow-' + str(datetime.now()), release_label='emr-5.9.0',master_instance_type='m3.xlarge', num_core_nodes=2, core_node_instance_type='m3.2xlarge'):
     emr_master_security_group_id = get_security_group_id('AirflowEMRMasterSG3', region_name=region_name)
     emr_slave_security_group_id = get_security_group_id('AirflowEMRSlaveSG3', region_name=region_name)
