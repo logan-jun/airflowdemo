@@ -50,5 +50,11 @@ join_csv_files = PythonOperator(
     python_callable=join_csv_files,
     dag=dag)
 
+remove_files = BashOperator(
+    task_id='remove_files',
+    bash_command='rm -f /tempfiles/data_merged.csv && rm -f /tempfiles/temp_merged.csv',
+    dag=dag,
+)
+
 # construct the DAG by setting the dependencies
-get_temperature_file >> get_dust_file >> join_csv_files
+get_temperature_file >> get_dust_file >> join_csv_files >> remove_files
