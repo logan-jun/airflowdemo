@@ -147,7 +147,7 @@ Resources:
   AirflowEC2SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupName: AirflowEC2SG3
+      GroupName: AirflowEC2SG4
       GroupDescription: Enable HTTP access via port 80 + SSH access
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -165,7 +165,7 @@ Resources:
   AirflowEMRMasterEC2SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupName: AirflowEMRMasterSG3
+      GroupName: AirflowEMRMasterSG4
       GroupDescription: Airflow EMR Master SG
     DependsOn:
       - AirflowEC2SecurityGroup
@@ -180,7 +180,7 @@ Resources:
   AirflowEMRSlaveEC2SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupName: AirflowEMRSlaveSG3
+      GroupName: AirflowEMRSlaveSG4
       GroupDescription: Airflow EMR Slave SG
   DBSecurityGroup:
     Type: AWS::RDS::DBSecurityGroup
@@ -192,7 +192,7 @@ Resources:
   EC2Role:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: AirflowInstanceRole3
+      RoleName: AirflowInstanceRole4
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -209,14 +209,14 @@ Resources:
   EC2InstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
-      InstanceProfileName: AirflowInstanceProfile3
+      InstanceProfileName: AirflowInstanceProfile4
       Roles:
         -
           Ref: EC2Role
   EmrRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: EmrRole3
+      RoleName: EmrRole4
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -234,7 +234,7 @@ Resources:
   EmrEc2Role:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: EmrEc2Role3
+      RoleName: EmrEc2Role4
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -251,7 +251,7 @@ Resources:
   EmrEc2InstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
-      InstanceProfileName: EmrEc2InstanceProfile3
+      InstanceProfileName: EmrEc2InstanceProfile4
       Roles:
         -
           Ref: EmrEc2Role

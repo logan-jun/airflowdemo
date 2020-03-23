@@ -29,7 +29,7 @@ def add_job_flow_steps(jobflowId):
                 'HadoopJarStep': {
                     'Jar': 'command-runner.jar',
                     'Args': [
-                        'spark-submit', '--deploy-mode', 'client', '--class', 'com.example.beam.App', 's3://bsjun-airflow-temp/beam/wordcount/wordcount-app-1.0.0-shaded.jar', '--runner=SparkRunner', '--inputPath=s3://bsjun-airflow-temp/beam/kinglear.txt', '--outputPath=s3://bsjun-airflow-temp/beam/wordcount'
+                        'spark-submit', '--deploy-mode', 'client', '--class', 'com.example.beam.App', 's3://bsjun-airflow-temp/beam/wordcount/wordcount-app-1.0.0-shaded.jar', '--runner=SparkRunner', '--inputPath=s3://bsjun-airflow-temp/beam/kinglear.txt', '--outputPath=s3://bsjun-airflow-temp/beam/output/result'
                     ]
                 }
             },
@@ -39,8 +39,8 @@ def add_job_flow_steps(jobflowId):
 
 # EMR에 spark cluster 생성
 def create_cluster(region_name, cluster_name='Airflow-' + str(datetime.now()), release_label='emr-5.9.0',master_instance_type='m3.xlarge', num_core_nodes=2, core_node_instance_type='m3.2xlarge'):
-    emr_master_security_group_id = get_security_group_id('AirflowEMRMasterSG3', region_name=region_name)
-    emr_slave_security_group_id = get_security_group_id('AirflowEMRSlaveSG3', region_name=region_name)
+    emr_master_security_group_id = get_security_group_id('AirflowEMRMasterSG4', region_name=region_name)
+    emr_slave_security_group_id = get_security_group_id('AirflowEMRSlaveSG4', region_name=region_name)
     cluster_response = emr.run_job_flow(
         Name=cluster_name,
         ReleaseLabel=release_label,
@@ -67,8 +67,8 @@ def create_cluster(region_name, cluster_name='Airflow-' + str(datetime.now()), r
             'EmrManagedSlaveSecurityGroup': emr_slave_security_group_id
         },
         VisibleToAllUsers=True,
-        JobFlowRole='EmrEc2InstanceProfile3',
-        ServiceRole='EmrRole3',
+        JobFlowRole='EmrEc2InstanceProfile4',
+        ServiceRole='EmrRole4',
         Applications=[
             { 'Name': 'hadoop' },
             { 'Name': 'spark' },
