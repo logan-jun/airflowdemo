@@ -57,11 +57,11 @@ def get_temperature_file(**kwargs):
     return file
 
 def get_dust_file(**kwargs):
-    file = s3.download_file(bucket='bsjun-test1', key='before/data_merged.csv', destination='/tempfiles/data_merged.csv')
+    file = s3.download_file_s3(bucket='bsjun-test1', key='before/data_merged.csv', destination='/tempfiles/data_merged.csv')
     return file
 
 def upload_file_to_s3(**kwargs):
-    return s3.upload_file(source='/tempfiles/output.csv', bucket='bsjun-test1', key='before/output.csv')
+    return s3.upload_file_s3(source='/tempfiles/output.csv', bucket='bsjun-test1', key='before/output.csv')
 
 def join_csv_files(**kwargs):
     a = pd.read_csv("/tempfiles/temp_merged.csv")

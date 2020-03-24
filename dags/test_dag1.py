@@ -1,6 +1,5 @@
-import airflowlib.s3_lib as s3
+import airflowlib.gcs_lib as gcs
 import os
-import pandas as pd
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.bash_operator import BashOperator
@@ -21,22 +20,7 @@ dag = DAG('test_dag1', concurrency=3, schedule_interval=None, default_args=defau
 
 # Creates an EMR cluster
 def get_temperature_file(**kwargs):
-    file = s3.download_file(bucket='bsjun-test1', key='before/temp_merged.csv', destination='/tempfiles/temp_merged.csv')
-    return file
-
-def get_dust_file(**kwargs):
-    file = s3.download_file(bucket='bsjun-test1', key='before/data_merged.csv', destination='/tempfiles/data_merged.csv')
-    return file
-
-def upload_file_to_s3(**kwargs):
-    return s3.upload_file(source='/tempfiles/output.csv', bucket='bsjun-test1', key='before/output.csv')
-
-def join_csv_files(**kwargs):
-    a = pd.read_csv("/tempfiles/temp_merged.csv")
-    b = pd.read_csv("/tempfiles/data_merged.csv")
-    b = b.dropna(axis=1)
-    merged = a.merge(b, on='dataTime')
-    return merged.to_csv("/tempfiles/output.csv", index=False)
+    return gcs.download_file_gcs(bucket='bsjun-test1', filename='temp_merged.csv', destination='/tempfiles/temp_merged.csv')
 
 # Define the individual tasks using Python Operators
 get_temperature_file = PythonOperator(
@@ -44,26 +28,11 @@ get_temperature_file = PythonOperator(
     python_callable=get_temperature_file,
     dag=dag)
 
-upload_file_to_s3 = PythonOperator(
-    task_id='upload_file_to_s3',
-    python_callable=upload_file_to_s3,
-    dag=dag)
-
-get_dust_file = PythonOperator(
-    task_id='get_dust_file',
-    python_callable=get_dust_file,
-    dag=dag)
-
-join_csv_files = PythonOperator(
-    task_id='join_csv_files',
-    python_callable=join_csv_files,
-    dag=dag)
-
 remove_files = BashOperator(
     task_id='remove_files',
-    bash_command='rm -f /tempfiles/data_merged.csv && rm -f /tempfiles/temp_merged.csv && rm -f /tempfiles/output.csv',
+    bash_command='echo 1',
     dag=dag,
 )
 
 # construct the DAG by setting the dependencies
-get_temperature_file >> get_dust_file >> join_csv_files >> upload_file_to_s3 >> remove_files
+get_temperature_file >> remove_files
