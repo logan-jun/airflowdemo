@@ -23,8 +23,8 @@ def get_temperature_file(**kwargs):
     return gcs.download_file_gcs(bucket='bsjun-test1', filename='temp_merged.csv', destination='/tempfiles/temp_merged.csv')
 
 # Define the individual tasks using Python Operators
-get_temperature_file = PythonOperator(
-    task_id='get_temperature_file',
+get_temperature_file_gcs = PythonOperator(
+    task_id='get_temperature_file_gcs',
     python_callable=get_temperature_file,
     dag=dag)
 
@@ -35,4 +35,4 @@ remove_files = BashOperator(
 )
 
 # construct the DAG by setting the dependencies
-get_temperature_file >> remove_files
+get_temperature_file_gcs >> remove_files

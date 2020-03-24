@@ -1,5 +1,6 @@
 import airflowlib.emr_lib as emr
 import airflowlib.s3_lib as s3
+import airflowlib.gcs_lib as gcs
 import os
 import pandas as pd
 from airflow import DAG
@@ -52,11 +53,7 @@ def terminate_emr(**kwargs):
     cluster_id = ti.xcom_pull(task_ids='create_cluster')
     emr.terminate_cluster(cluster_id)
 
-def get_temperature_file(**kwargs):
-    file = s3.download_file(bucket='bsjun-test1', key='before/temp_merged.csv', destination='/tempfiles/temp_merged.csv')
-    return file
-
-def get_dust_file(**kwargs):
+def get_dust_file_s3(**kwargs):
     file = s3.download_file_s3(bucket='bsjun-test1', key='before/data_merged.csv', destination='/tempfiles/data_merged.csv')
     return file
 
@@ -69,6 +66,9 @@ def join_csv_files(**kwargs):
     b = b.dropna(axis=1)
     merged = a.merge(b, on='dataTime')
     return merged.to_csv("/tempfiles/output.csv", index=False)
+
+def get_temperature_file_gcs(**kwargs):
+    return gcs.download_file_gcs(bucket='bsjun-test1', filename='temp_merged.csv', destination='/tempfiles/temp_merged.csv')
 
 # Define the individual tasks using Python Operators
 create_cluster = PythonOperator(
@@ -97,9 +97,9 @@ terminate_cluster = PythonOperator(
     trigger_rule='all_done',
     dag=dag)
 
-get_temperature_file = PythonOperator(
-    task_id='get_temperature_file',
-    python_callable=get_temperature_file,
+get_temperature_file_gcs = PythonOperator(
+    task_id='get_temperature_file_gcs',
+    python_callable=get_temperature_file_gcs,
     dag=dag)
 
 upload_file_to_s3 = PythonOperator(
@@ -107,9 +107,9 @@ upload_file_to_s3 = PythonOperator(
     python_callable=upload_file_to_s3,
     dag=dag)
 
-get_dust_file = PythonOperator(
-    task_id='get_dust_file',
-    python_callable=get_dust_file,
+get_dust_file_s3 = PythonOperator(
+    task_id='get_dust_file_s3',
+    python_callable=get_dust_file_s3,
     dag=dag)
 
 join_csv_files = PythonOperator(
@@ -124,8 +124,8 @@ remove_files = BashOperator(
 )
 
 # construct the DAG by setting the dependencies
-get_temperature_file >> join_csv_files
-get_dust_file >> join_csv_files
+get_temperature_file_gcs >> join_csv_files
+get_dust_file_s3 >> join_csv_files
 join_csv_files >> upload_file_to_s3 >> remove_files
 upload_file_to_s3 >> create_cluster >> wait_for_cluster_completion
 wait_for_cluster_completion >> add_emr_step >> wait_for_step_completion >> terminate_cluster
