@@ -1,8 +1,10 @@
 import airflowlib.emr_lib as emr
+import airflowlib.s3_lib as s3
 import os
-
+import pandas as pd
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
+from airflow.operators.bash_operator import BashOperator
 from datetime import datetime, timedelta
 
 default_args = {
@@ -50,6 +52,24 @@ def terminate_emr(**kwargs):
     cluster_id = ti.xcom_pull(task_ids='create_cluster')
     emr.terminate_cluster(cluster_id)
 
+def get_temperature_file(**kwargs):
+    file = s3.download_file(bucket='bsjun-test1', key='before/temp_merged.csv', destination='/tempfiles/temp_merged.csv')
+    return file
+
+def get_dust_file(**kwargs):
+    file = s3.download_file(bucket='bsjun-test1', key='before/data_merged.csv', destination='/tempfiles/data_merged.csv')
+    return file
+
+def upload_file_to_s3(**kwargs):
+    return s3.upload_file(source='/tempfiles/output.csv', bucket='bsjun-test1', key='before/output.csv')
+
+def join_csv_files(**kwargs):
+    a = pd.read_csv("/tempfiles/temp_merged.csv")
+    b = pd.read_csv("/tempfiles/data_merged.csv")
+    b = b.dropna(axis=1)
+    merged = a.merge(b, on='dataTime')
+    return merged.to_csv("/tempfiles/output.csv", index=False)
+
 # Define the individual tasks using Python Operators
 create_cluster = PythonOperator(
     task_id='create_cluster',
@@ -77,6 +97,35 @@ terminate_cluster = PythonOperator(
     trigger_rule='all_done',
     dag=dag)
 
+get_temperature_file = PythonOperator(
+    task_id='get_temperature_file',
+    python_callable=get_temperature_file,
+    dag=dag)
+
+upload_file_to_s3 = PythonOperator(
+    task_id='upload_file_to_s3',
+    python_callable=upload_file_to_s3,
+    dag=dag)
+
+get_dust_file = PythonOperator(
+    task_id='get_dust_file',
+    python_callable=get_dust_file,
+    dag=dag)
+
+join_csv_files = PythonOperator(
+    task_id='join_csv_files',
+    python_callable=join_csv_files,
+    dag=dag)
+
+remove_files = BashOperator(
+    task_id='remove_files',
+    bash_command='rm -f /tempfiles/data_merged.csv && rm -f /tempfiles/temp_merged.csv && rm -f /tempfiles/output.csv',
+    dag=dag,
+)
+
 # construct the DAG by setting the dependencies
-create_cluster >> wait_for_cluster_completion
+get_temperature_file >> join_csv_files
+get_dust_file >> join_csv_files
+join_csv_files >> upload_file_to_s3 >> remove_files
+upload_file_to_s3 >> create_cluster >> wait_for_cluster_completion
 wait_for_cluster_completion >> add_emr_step >> wait_for_step_completion >> terminate_cluster
