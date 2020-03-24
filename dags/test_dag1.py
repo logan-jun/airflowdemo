@@ -29,7 +29,7 @@ def get_dust_file(**kwargs):
     return file
 
 def upload_file_to_s3(**kwargs):
-    return s3.upload_file(source='/tempfiles/output.csv', bucket='bsjun-test1/before', key='/before/output.csv')
+    return s3.upload_file(source='/tempfiles/output.csv', bucket='bsjun-test1', key='before/output.csv')
 
 def join_csv_files(**kwargs):
     a = pd.read_csv("/tempfiles/temp_merged.csv")

@@ -25,7 +25,7 @@ def add_job_flow_steps(jobflowId):
                 'HadoopJarStep': {
                     'Jar': 'command-runner.jar',
                     'Args': [
-                        'spark-submit', '--deploy-mode', 'client', '--class', 'com.example.beam.App', 's3://bsjun-airflow-temp/beam/wordcount/wordcount-app-1.0.0-shaded.jar', '--runner=SparkRunner', '--inputPath=s3://bsjun-airflow-temp/beam/kinglear.txt', '--outputPath=s3://bsjun-airflow-temp/beam/output/result'
+                        'spark-submit', '--deploy-mode', 'client', '--class', 'com.example.beam.App', 's3://bsjun-test1/beamapp/beam-app-1.0.0-shaded.jar', '--runner=SparkRunner', '--inputPath=s3://bsjun-test1/before/output.csv', '--outputPath=s3://bsjun-test1/output/result'
                     ]
                 }
             },
