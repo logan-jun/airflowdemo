@@ -65,8 +65,8 @@ Resources:
         Ref: EC2InstanceProfile
       Tags:
         -
-          Key: Name
-          Value: Airflow
+          Key: cz.owner
+          Value: junbyungsun-bsjun
       ImageId: !FindInMap
         - RegionMap
         - !Ref 'AWS::Region'

@@ -33,7 +33,7 @@ def add_job_flow_steps(jobflowId):
     )
     return client_response['StepIds'][0]
 
-def create_cluster(region_name, cluster_name='Airflow-' + str(datetime.now()), release_label='emr-5.9.0',master_instance_type='m3.xlarge', num_core_nodes=2, core_node_instance_type='m3.2xlarge'):
+def create_cluster(region_name, cluster_name='Airflow-' + str(datetime.now()), release_label='emr-5.9.0',master_instance_type='m3.large', num_core_nodes=1, core_node_instance_type='m3.large'):
     emr_master_security_group_id = get_security_group_id('AirflowEMRMasterSG4', region_name=region_name)
     emr_slave_security_group_id = get_security_group_id('AirflowEMRSlaveSG4', region_name=region_name)
     cluster_response = emr.run_job_flow(
@@ -46,14 +46,38 @@ def create_cluster(region_name, cluster_name='Airflow-' + str(datetime.now()), r
                     'Market': 'ON_DEMAND',
                     'InstanceRole': 'MASTER',
                     'InstanceType': master_instance_type,
-                    'InstanceCount': 1
+                    'InstanceCount': 1,
+                    'Configurations': [
+                        {
+                            'Properties': {
+                                'Tags': [
+                                    {
+                                        'Key': 'cz.owner',
+                                        'Value': 'junbyungsun-bsjun'
+                                    }
+                                ]
+                            }
+                        }
+                    ]
                 },
                 {
                     'Name': "Slave nodes",
                     'Market': 'ON_DEMAND',
                     'InstanceRole': 'CORE',
                     'InstanceType': core_node_instance_type,
-                    'InstanceCount': num_core_nodes
+                    'InstanceCount': num_core_nodes,
+                    'Configurations': [
+                        {
+                            'Properties': {
+                                'Tags': [
+                                    {
+                                        'Key': 'cz.owner',
+                                        'Value': 'junbyungsun-bsjun'
+                                    }
+                                ]
+                            }
+                        }
+                    ]
                 }
             ],
             'KeepJobFlowAliveWhenNoSteps': True,
