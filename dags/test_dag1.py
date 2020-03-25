@@ -19,13 +19,15 @@ default_args = {
 dag = DAG('test_dag1', concurrency=3, schedule_interval=None, default_args=default_args)
 
 # Creates an EMR cluster
-s3_to_redshift = S3ToRedshiftOperator(
+s3_to_redshift = S3ToRedshiftTransfer(
   task_id="s3_to_redshift",
   redshift_conn_id="my_redshift",
   aws_conn_id="my_conn_s3",
   table="result",
   s3_bucket="bsjun-test1",
-  s3_key="output/result-00000-of-00002.csv",
+  schema="public",
+  s3_key="output",
+  copy_options="delimiter ','",
   verify=True,
   dag=dag
 )
