@@ -6,6 +6,7 @@ import pandas as pd
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.bash_operator import BashOperator
+from airflow.operators.s3_to_redshift_operator import S3ToRedshiftTransfer
 from datetime import datetime, timedelta
 
 default_args = {
@@ -123,9 +124,22 @@ remove_files = BashOperator(
     dag=dag,
 )
 
+s3_to_redshift = S3ToRedshiftTransfer(
+  task_id="s3_to_redshift",
+  redshift_conn_id="my_redshift",
+  aws_conn_id="my_conn_s3",
+  table="output",
+  s3_bucket="bsjun-test1",
+  schema="public",
+  s3_key="results",
+  copy_options=["delimiter ','"],
+  verify=True,
+  dag=dag
+)
+
 # construct the DAG by setting the dependencies
 get_temperature_file_gcs >> join_csv_files
 get_dust_file_s3 >> join_csv_files
 join_csv_files >> upload_file_to_s3 >> remove_files
 upload_file_to_s3 >> create_cluster >> wait_for_cluster_completion
-wait_for_cluster_completion >> add_emr_step >> wait_for_step_completion >> terminate_cluster
+wait_for_cluster_completion >> add_emr_step >> wait_for_step_completion >> terminate_cluster >> s3_to_redshift

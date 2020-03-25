@@ -23,11 +23,11 @@ s3_to_redshift = S3ToRedshiftTransfer(
   task_id="s3_to_redshift",
   redshift_conn_id="my_redshift",
   aws_conn_id="my_conn_s3",
-  table="result",
+  table="output",
   s3_bucket="bsjun-test1",
   schema="public",
-  s3_key="output",
-  copy_options="delimiter ','",
+  s3_key="results",
+  copy_options=["delimiter ','"],
   verify=True,
   dag=dag
 )
