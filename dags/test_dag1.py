@@ -4,7 +4,8 @@ from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.bash_operator import BashOperator
 from datetime import datetime, timedelta
-
+from airflow.operators.redshift_upsert_plugin import RedshiftUpsertOperator
+from airflow.operators.redshift_load_plugin import S3ToRedshiftOperator
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
@@ -19,14 +20,17 @@ default_args = {
 dag = DAG('test_dag1', concurrency=3, schedule_interval=None, default_args=default_args)
 
 # Creates an EMR cluster
-def get_temperature_file(**kwargs):
-    return gcs.download_file_gcs(bucket='bsjun-test1', filename='temp_merged.csv', destination='/tempfiles/temp_merged.csv')
-
+s3_to_redshift = S3ToRedshiftOperator(
+  task_id="s3_to_redshift",
+  redshift_conn_id="my_redshift",
+  aws_conn_id="my_conn_s3",
+  table="result",
+  s3_bucket="bsjun-test1",
+  s3_key="output/result-00000-of-00002.csv",
+  verify=True,
+  dag=dag
+)
 # Define the individual tasks using Python Operators
-get_temperature_file_gcs = PythonOperator(
-    task_id='get_temperature_file_gcs',
-    python_callable=get_temperature_file,
-    dag=dag)
 
 remove_files = BashOperator(
     task_id='remove_files',
@@ -35,4 +39,4 @@ remove_files = BashOperator(
 )
 
 # construct the DAG by setting the dependencies
-get_temperature_file_gcs >> remove_files
+s3_to_redshift >> remove_files
