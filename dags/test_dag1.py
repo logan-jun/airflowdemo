@@ -4,8 +4,7 @@ from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.bash_operator import BashOperator
 from datetime import datetime, timedelta
-from airflow.operators.redshift_upsert_plugin import RedshiftUpsertOperator
-from airflow.operators.redshift_load_plugin import S3ToRedshiftOperator
+from airflow.operators.s3_to_redshift_operator import S3ToRedshiftTransfer
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
