@@ -47,18 +47,6 @@ def create_cluster(region_name, cluster_name='Airflow-' + str(datetime.now()), r
                     'InstanceRole': 'MASTER',
                     'InstanceType': master_instance_type,
                     'InstanceCount': 1,
-                    'Configurations': [
-                        {
-                            'Properties': {
-                                'Tags': [
-                                    {
-                                        'Key': 'cz.owner',
-                                        'Value': 'junbyungsun-bsjun'
-                                    }
-                                ]
-                            }
-                        }
-                    ]
                 },
                 {
                     'Name': "Slave nodes",
@@ -66,18 +54,6 @@ def create_cluster(region_name, cluster_name='Airflow-' + str(datetime.now()), r
                     'InstanceRole': 'CORE',
                     'InstanceType': core_node_instance_type,
                     'InstanceCount': num_core_nodes,
-                    'Configurations': [
-                        {
-                            'Properties': {
-                                'Tags': [
-                                    {
-                                        'Key': 'cz.owner',
-                                        'Value': 'junbyungsun-bsjun'
-                                    }
-                                ]
-                            }
-                        }
-                    ]
                 }
             ],
             'KeepJobFlowAliveWhenNoSteps': True,
@@ -94,7 +70,13 @@ def create_cluster(region_name, cluster_name='Airflow-' + str(datetime.now()), r
             { 'Name': 'hive' },
             { 'Name': 'livy' },
             { 'Name': 'zeppelin' }
-        ]
+        ],
+        Tags=[
+        {
+            'Key': 'cz.owner',
+            'Value': 'junbyungsun-bsjun',
+        }
+    ],
     )
     return cluster_response['JobFlowId']
 
