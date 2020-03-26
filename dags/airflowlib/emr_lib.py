@@ -39,6 +39,7 @@ def create_cluster(region_name, cluster_name='Airflow-' + str(datetime.now()), r
     cluster_response = emr.run_job_flow(
         Name=cluster_name,
         ReleaseLabel=release_label,
+        LogUri='https://bsjun-test1.s3.amazonaws.com/emrLogs',
         Instances={
             'InstanceGroups': [
                 {
